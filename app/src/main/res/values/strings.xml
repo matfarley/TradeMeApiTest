@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TradeMe Api</string>
+    <string name="err_no_categories">Sorry, we couldn\'t find any categories.</string>
+    <string name="listings_button_ln_1">View</string>
+    <string name="listings_button_ln_2">Listings</string>
+</resources>
