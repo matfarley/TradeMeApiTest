@@ -44,8 +44,8 @@ public class CategoriesFragment extends Fragment implements IStateListener, ICat
 
         adapter = new CategoriesRecyclerViewAdapter(this);
         recyclerView.setAdapter(adapter);
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
-        recyclerView.setLayoutManager(mLayoutManager);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
+        recyclerView.setLayoutManager(layoutManager);
 
         return view;
     }

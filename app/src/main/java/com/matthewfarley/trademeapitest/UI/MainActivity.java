@@ -4,6 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 
 import com.matthewfarley.trademeapitest.GlobalState.ISessionStateAdapter;
 import com.matthewfarley.trademeapitest.IApplicationNavigation;
@@ -22,15 +23,16 @@ public class MainActivity extends AppCompatActivity implements IApplicationNavig
     @Inject
     ISessionStateAdapter sessionStateAdapter;
 
-    @Inject
-    ITradeMeApiAdapter tradeMeApiAdapter;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Injector.getInjectionComponent().inject(this);
 
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
 
         if (savedInstanceState != null) {
             return;
@@ -80,7 +82,9 @@ public class MainActivity extends AppCompatActivity implements IApplicationNavig
 
     @Override
     public void onBackPressed() {
+        // Make sure that the browsing stack is popped when we go back.
         if(!sessionStateAdapter.getCategoryBrowsingStack().isEmpty()){
+            // I'm assuming that the current category name will give me current fragment.
             String tag = sessionStateAdapter.getCategoryBrowsingStack().peek().name;
             Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
             if (fragment instanceof CategoriesFragment &&
@@ -89,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements IApplicationNavig
             }
         }
         super.onBackPressed();
-        // get reference to fragment and call back.
     }
 
     private void addFragment(Fragment fragment, int containerId, String tag) {

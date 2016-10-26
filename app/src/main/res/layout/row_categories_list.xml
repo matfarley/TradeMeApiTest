@@ -3,53 +3,65 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/categories_row_height"
-    android:gravity="center_vertical">
-    <!-- Category Title-->
-    <TextView
-        android:id="@+id/categories_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        tools:text="Motors"
-        android:ellipsize="end"
-        android:layout_margin="@dimen/default_padding"
-        style="@style/TextAppearance.AppCompat.Large"
-        />
+    android:orientation="vertical">
 
-    <!-- Button to view listings for a category-->
     <LinearLayout
-        android:id="@+id/categories_view_listings_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:clickable="true"
-        android:layout_margin="@dimen/default_padding">
-
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <!-- Category Title-->
         <TextView
+            android:id="@+id/categories_title"
+            style="@style/TextAppearance.AppCompat.Large"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/default_padding"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:gravity="center_vertical"
+            tools:text="Agriculture & Farming & Viticulture" />
+
+        <!-- Button to view listings for a category-->
+        <LinearLayout
+            android:id="@+id/categories_view_listings_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAllCaps="true"
-            style="@style/ButtonText"
-            android:text="@string/listings_button_ln_1"
-            />
+            android:layout_margin="@dimen/default_padding"
+            android:clickable="true"
+            android:gravity="center"
+            android:orientation="vertical">
 
-        <TextView
+            <TextView
+                style="@style/ButtonText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/listings_button_ln_1"
+                android:textAllCaps="true" />
+
+            <TextView
+                style="@style/ButtonText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/listings_button_ln_2"
+                android:textAllCaps="true" />
+
+        </LinearLayout>
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/categories_right_arrow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAllCaps="true"
-            style="@style/ButtonText"
-            android:text="@string/listings_button_ln_2"
-            />
-
+            android:layout_margin="@dimen/default_padding"
+            android:clickable="true"
+            android:src="@drawable/ic_navigate_next_black_48dp" />
     </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/listSeparatorColor"
+        android:layout_marginBottom="1dp"/>
 
-    <android.support.v7.widget.AppCompatImageView
-        android:id="@+id/categories_right_arrow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_navigate_next_black_48dp"
-        android:layout_margin="@dimen/default_padding"
-        android:clickable="true"
-        />
 </LinearLayout>
