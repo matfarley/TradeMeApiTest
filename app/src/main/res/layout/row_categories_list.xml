@@ -22,7 +22,7 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:gravity="center_vertical"
-            tools:text="Agriculture & Farming & Viticulture" />
+            tools:text="Agriculture &amp; Farming &amp; Viticulture" />
 
         <!-- Button to view listings for a category-->
         <LinearLayout

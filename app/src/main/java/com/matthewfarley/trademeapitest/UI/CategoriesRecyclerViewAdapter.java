@@ -50,7 +50,7 @@ public class CategoriesRecyclerViewAdapter extends RecyclerView.Adapter<Categori
         });
 
         if (category.subcategories == null || category.subcategories.isEmpty()){
-            holder.imageView.setVisibility(View.GONE);
+            holder.imageView.setVisibility(View.INVISIBLE);
         }else {
             holder.imageView.setVisibility(View.VISIBLE);
             holder.imageView.setOnClickListener(new View.OnClickListener() {

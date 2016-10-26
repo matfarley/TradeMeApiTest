@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 
 import com.matthewfarley.trademeapitest.GlobalState.ISessionStateAdapter;
 import com.matthewfarley.trademeapitest.IApplicationNavigation;
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements IApplicationNavig
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        showToolbarNavigationArrow(false);
 
         if (savedInstanceState != null) {
             return;
@@ -53,6 +54,11 @@ public class MainActivity extends AppCompatActivity implements IApplicationNavig
         });
     }
 
+    private void showToolbarNavigationArrow(boolean shouldShowNavigation){
+        getSupportActionBar().setDisplayHomeAsUpEnabled(shouldShowNavigation);
+        getSupportActionBar().setDisplayShowHomeEnabled(shouldShowNavigation);
+    }
+
     /**
      * IApplicationNavigation implementation.
      */
@@ -68,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements IApplicationNavig
         // add new category to stack
         sessionStateAdapter.addCategoryToBrowsingStack(category);
         String tag = category.name;
+        setTitle(tag);
+        showToolbarNavigationArrow(true);
         addFragmentWithBackStack(new CategoriesFragment(), R.id.content, tag);
     }
 
@@ -83,16 +91,30 @@ public class MainActivity extends AppCompatActivity implements IApplicationNavig
     @Override
     public void onBackPressed() {
         // Make sure that the browsing stack is popped when we go back.
-        if(!sessionStateAdapter.getCategoryBrowsingStack().isEmpty()){
+        if (!sessionStateAdapter.getCategoryBrowsingStack().isEmpty()) {
             // I'm assuming that the current category name will give me current fragment.
             String tag = sessionStateAdapter.getCategoryBrowsingStack().peek().name;
             Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
-            if (fragment instanceof CategoriesFragment &&
-                    !tag.equals(sessionStateAdapter.getCategoryBrowsingStack().firstElement().name)){
-                sessionStateAdapter.popCategoryFromBrowsingStack();
+            if (fragment instanceof CategoriesFragment) {
+                if (!tag.equals(sessionStateAdapter.getCategoryBrowsingStack().firstElement().name)) {
+                    sessionStateAdapter.popCategoryFromBrowsingStack();
+                }
+                setTitleForCategoriesFragment((CategoriesFragment) fragment);
             }
         }
+
         super.onBackPressed();
+    }
+
+    private void setTitleForCategoriesFragment(CategoriesFragment fragment){
+        // Make sure the correct title is set when going back.  I don't want to do this inside the Fragments.
+        String title = sessionStateAdapter.getCategoryBrowsingStack().peek().name;
+        if (!title.equals(sessionStateAdapter.getCategoryBrowsingStack().firstElement().name)) {
+            setTitle(title);
+        } else {
+            showToolbarNavigationArrow(false);
+            setTitle(getResources().getString(R.string.app_name));
+        }
     }
 
     private void addFragment(Fragment fragment, int containerId, String tag) {
@@ -112,5 +134,14 @@ public class MainActivity extends AppCompatActivity implements IApplicationNavig
                     .addToBackStack(tag)
                     .commit();
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }
