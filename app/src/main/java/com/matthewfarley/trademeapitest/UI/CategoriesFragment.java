@@ -24,11 +24,7 @@ import javax.inject.Inject;
  * Created by matthewfarley on 24/10/16.
  */
 
-public class CategoriesFragment extends Fragment implements IStateListener, ICategorySelectionHandler {
-
-    private TextView errorTextView;
-    private RecyclerView recyclerView;
-    private CategoriesRecyclerViewAdapter adapter;
+public class CategoriesFragment extends BaseListFragment<CategoriesRecyclerViewAdapter> implements IStateListener, ICategorySelectionHandler {
 
     @Inject
     ISessionStateAdapter sessionStateAdapter;
@@ -38,16 +34,18 @@ public class CategoriesFragment extends Fragment implements IStateListener, ICat
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Injector.getInjectionComponent().inject(this);
 
-        View view = inflater.inflate(R.layout.fragment_categories, container, false);
-        errorTextView = (TextView) view.findViewById(R.id.error_text);
-        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
-
-        adapter = new CategoriesRecyclerViewAdapter(this);
-        recyclerView.setAdapter(adapter);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
-        recyclerView.setLayoutManager(layoutManager);
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        errorTextView.setText(getResources().getString(R.string.err_no_categories));
 
         return view;
+    }
+
+    @Override
+    protected CategoriesRecyclerViewAdapter getAdapter() {
+        if(adapter == null){
+            adapter = new CategoriesRecyclerViewAdapter(this);
+        }
+        return adapter;
     }
 
     @Override
@@ -60,8 +58,8 @@ public class CategoriesFragment extends Fragment implements IStateListener, ICat
             return;
         }
         showError(false);
-        adapter.setCategoryList(sessionStateAdapter.getCategoryBrowsingStack().peek().subcategories);
-
+        getAdapter()
+                .setCategoryList(sessionStateAdapter.getCategoryBrowsingStack().peek().subcategories);
     }
 
     @Override
@@ -86,15 +84,8 @@ public class CategoriesFragment extends Fragment implements IStateListener, ICat
         }
 
         showError(false);
-        adapter.setCategoryList(sessionStateAdapter.getCategoryBrowsingStack().peek().subcategories);
-    }
-
-    private void showError(boolean shouldShowError){
-        if (shouldShowError){
-            errorTextView.setVisibility(View.VISIBLE);
-        }else{
-            errorTextView.setVisibility(View.GONE);
-        }
+        getAdapter()
+                .setCategoryList(sessionStateAdapter.getCategoryBrowsingStack().peek().subcategories);
     }
 
     /** ICategorySelectionHandler implementation.*/
@@ -117,7 +108,4 @@ public class CategoriesFragment extends Fragment implements IStateListener, ICat
             ((IApplicationNavigation)getActivity()).navigateToCategoryListings(category);
         }
     }
-
-    //TODO: handle back i.e. pop this category!
-
 }

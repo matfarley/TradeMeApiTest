@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">TradeMe Api</string>
     <string name="err_no_categories">Sorry, we couldn\'t find any categories.</string>
+    <string name="err_no_listings">Sorry, we couldn\'t find any listings for this category.</string>
     <string name="listings_button_ln_1">View</string>
     <string name="listings_button_ln_2">Listings</string>
 </resources>
