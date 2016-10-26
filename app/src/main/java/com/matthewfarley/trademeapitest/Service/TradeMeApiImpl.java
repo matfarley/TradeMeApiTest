@@ -1,8 +1,11 @@
 package com.matthewfarley.trademeapitest.Service;
 
 import com.matthewfarley.trademeapitest.Service.Endpoints.ICategoriesEndpointService;
+import com.matthewfarley.trademeapitest.Service.Endpoints.ISearchEndpointService;
 import com.matthewfarley.trademeapitest.Service.Error.ApiError;
 import com.matthewfarley.trademeapitest.Service.Models.Category;
+import com.matthewfarley.trademeapitest.Service.Models.Listing;
+import com.matthewfarley.trademeapitest.Service.Models.SearchResults;
 import com.matthewfarley.trademeapitest.Util.IPromiseManager;
 
 import org.jdeferred.Deferred;
@@ -10,8 +13,13 @@ import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
+import java.net.URLEncoder;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.inject.Inject;
 
@@ -34,6 +42,7 @@ public class TradeMeApiImpl implements ITradeMeApi {
     //TODO: Obfuscate/Serialise these values.
     private static final String API_CONSUMER_KEY = "A1AC63F0332A131A78FAC304D007E7D1";
     private static final String API_CONSUMER_SECRET = "EC7F18B17A062962C6930A8AE88B16C7";
+    private static final String MAX_SEARCH_RESULTS = "20";
 
     private OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder();
     private Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
@@ -58,7 +67,7 @@ public class TradeMeApiImpl implements ITradeMeApi {
 
     @Override
     public Promise<Category, ApiError, String> getCategory(String category){
-    final Deferred<Category, ApiError, String> deferred = new DeferredObject();
+        final Deferred<Category, ApiError, String> deferred = new DeferredObject();
 
         String promiseKey = "getCategory" + category;
         if(promiseManager.getPromise(promiseKey) != null){
@@ -89,6 +98,72 @@ public class TradeMeApiImpl implements ITradeMeApi {
 
         promiseManager.addPromise(promiseKey, deferred.promise());
         return deferred.promise();
+    }
+
+    @Override
+    public Promise<List<Listing>, ApiError, String> getListingsForCategory(String categoryNumber) {
+        final Deferred<List<Listing>, ApiError, String> deferred = new DeferredObject();
+
+        String promiseKey = "getListingsForCategory" + categoryNumber;
+        if(promiseManager.getPromise(promiseKey) != null){
+            return promiseManager.getPromise(promiseKey);
+        }
+
+        Callback<SearchResults> callback = new Callback<SearchResults>() {
+            @Override
+            public void onResponse(Call<SearchResults> call, Response<SearchResults> response) {
+                if(response.isSuccessful()){
+                    deferred.resolve(response.body().list);
+                }else{
+                    ApiError apiError = parseError(response);
+                    deferred.reject(apiError);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SearchResults> call, Throwable t) {
+                ApiError apiError = new ApiError(call.request().url().toString(), t.getMessage());
+                deferred.reject(apiError);
+            }
+        };
+
+        java.util.Calendar cal = Calendar.getInstance();
+        cal.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String timeStamp = Long.valueOf(cal.getTimeInMillis()).toString();
+        String authorisationText = getAuthorisationHeaderText(API_CONSUMER_KEY, API_CONSUMER_SECRET, timeStamp);
+
+        ISearchEndpointService searchEndpointService = createEndpointService(ISearchEndpointService.class);
+        Call<SearchResults> call = searchEndpointService.getSearchResultsForCategory(authorisationText,
+                categoryNumber, MAX_SEARCH_RESULTS);
+        call.enqueue(callback);
+
+        promiseManager.addPromise(promiseKey, deferred.promise());
+        return deferred.promise();
+    }
+
+    private String getAuthorisationHeaderText(String consumerKey,
+                                              String consumerSecret,
+                                              String timeStamp){
+        StringBuilder sb = new StringBuilder("OAuth ");
+        sb.append("oauth_callback=").append(urlEncodeString("https://www.website-tm-access.co.nz/trademe-callback")).append(",")
+        .append("oauth_consumer_key=").append(urlEncodeString(consumerKey)).append(",")
+        .append("oauth_version=").append(urlEncodeString("1.0")).append(",")
+        .append("oauth_timestamp=").append(urlEncodeString(timeStamp)).append(",")
+        .append("oauth_nonce=").append(urlEncodeString("7O3kEe")).append(",")
+        .append("oauth_signature_method=").append(urlEncodeString("PLAINTEXT")).append(",")
+        .append("oauth_signature=").append(urlEncodeString(consumerSecret + "&"));
+
+        return sb.toString();
+    }
+
+    private String urlEncodeString(String string){
+        String encodedString;
+        try{
+            encodedString = URLEncoder.encode(string, "UTF-8");
+        }catch (UnsupportedEncodingException e){
+            encodedString = "";
+        }
+        return encodedString;
     }
 
     private ApiError parseError(Response<?> response) {

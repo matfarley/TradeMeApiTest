@@ -11,6 +11,7 @@ import com.matthewfarley.trademeapitest.GlobalState.ISessionStateAdapter;
 import com.matthewfarley.trademeapitest.IApplicationNavigation;
 import com.matthewfarley.trademeapitest.Injection.Injector;
 import com.matthewfarley.trademeapitest.R;
+import com.matthewfarley.trademeapitest.Service.ITradeMeApi;
 import com.matthewfarley.trademeapitest.Service.ITradeMeApiAdapter;
 import com.matthewfarley.trademeapitest.Service.Models.Category;
 
@@ -23,6 +24,9 @@ public class MainActivity extends AppCompatActivity implements IApplicationNavig
 
     @Inject
     ISessionStateAdapter sessionStateAdapter;
+
+    @Inject
+    ITradeMeApiAdapter tradeMeApiAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +85,9 @@ public class MainActivity extends AppCompatActivity implements IApplicationNavig
 
     @Override
     public void navigateToCategoryListings(final Category category) {
+
+        tradeMeApiAdapter.getListingsForCategory(category.number);
+
         // Make call to get listings
         // if succesful, add to stack, change page
         //        sessionStateAdapter.addCategoryToBrowsingStack(category);

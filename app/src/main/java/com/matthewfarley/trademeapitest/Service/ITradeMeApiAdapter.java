@@ -2,8 +2,11 @@ package com.matthewfarley.trademeapitest.Service;
 
 import com.matthewfarley.trademeapitest.Service.Error.ApiError;
 import com.matthewfarley.trademeapitest.Service.Models.Category;
+import com.matthewfarley.trademeapitest.Service.Models.Listing;
 
 import org.jdeferred.Promise;
+
+import java.util.List;
 
 /**
  * Created by matthewfarley on 26/10/16.
@@ -11,4 +14,5 @@ import org.jdeferred.Promise;
 
 public interface ITradeMeApiAdapter {
     Promise<Category, String, String> getAllCategories();
+    Promise<List<Listing>, String, String> getListingsForCategory(String categoryNumber);
 }

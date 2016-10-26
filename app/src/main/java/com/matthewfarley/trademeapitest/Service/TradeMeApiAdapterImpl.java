@@ -3,12 +3,15 @@ package com.matthewfarley.trademeapitest.Service;
 import com.google.common.base.Strings;
 import com.matthewfarley.trademeapitest.Service.Error.ApiError;
 import com.matthewfarley.trademeapitest.Service.Models.Category;
+import com.matthewfarley.trademeapitest.Service.Models.Listing;
 
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -40,17 +43,40 @@ public class TradeMeApiAdapterImpl implements ITradeMeApiAdapter {
                         }
                     }
                 }).fail(new FailCallback<ApiError>() {
+            @Override
+            public void onFail(ApiError error) {
+                deferred.reject(getErrorMessage(error));
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    @Override
+    public Promise<List<Listing>, String, String> getListingsForCategory(String categoryNumber) {
+        final Deferred<List<Listing>, String, String> deferred = new DeferredObject<>();
+        tradeMeApi.getListingsForCategory(categoryNumber)
+                .done(new DoneCallback<List<Listing>>() {
                     @Override
-                    public void onFail(ApiError error) {
-                        deferred.reject(getErrorMessage(error));
+                    public void onDone(List<Listing> result) {
+                        if (result == null || result.isEmpty()) {
+                            deferred.reject("Null Category Root");
+                        } else {
+                            deferred.resolve(result);
+                        }
                     }
+                }).fail(new FailCallback<ApiError>() {
+            @Override
+            public void onFail(ApiError error) {
+                deferred.reject(getErrorMessage(error));
+            }
         });
 
         return deferred.promise();
     }
 
     private String getErrorMessage(ApiError apiError) {
-        if(apiError == null || Strings.isNullOrEmpty(apiError.errorDescription)){
+        if (apiError == null || Strings.isNullOrEmpty(apiError.errorDescription)) {
             //TODO: Make a Context provider and inject so I can access the Strings resources.
             return "Network Error";
         }
