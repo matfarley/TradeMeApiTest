@@ -50,7 +50,7 @@
 
         </LinearLayout>
 
-        <android.support.v7.widget.AppCompatImageView
+        <ImageView
             android:id="@+id/categories_right_arrow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

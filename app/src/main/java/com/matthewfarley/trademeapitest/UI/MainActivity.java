@@ -1,7 +1,6 @@
 package com.matthewfarley.trademeapitest.UI;
 
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -11,7 +10,6 @@ import com.matthewfarley.trademeapitest.GlobalState.ISessionStateAdapter;
 import com.matthewfarley.trademeapitest.IApplicationNavigation;
 import com.matthewfarley.trademeapitest.Injection.Injector;
 import com.matthewfarley.trademeapitest.R;
-import com.matthewfarley.trademeapitest.Service.ITradeMeApi;
 import com.matthewfarley.trademeapitest.Service.ITradeMeApiAdapter;
 import com.matthewfarley.trademeapitest.Service.Models.Category;
 
@@ -37,7 +35,6 @@ public class MainActivity extends AppCompatActivity implements IApplicationNavig
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        showToolbarNavigationArrow(false);
 
         if (savedInstanceState != null) {
             return;
@@ -58,7 +55,24 @@ public class MainActivity extends AppCompatActivity implements IApplicationNavig
         });
     }
 
-    private void showToolbarNavigationArrow(boolean shouldShowNavigation){
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.content); //TODO: Fix for Tablet.
+        if(fragment instanceof IToolBarFragment){
+            setTitleForFragment(((IToolBarFragment)fragment));
+            showToolbarNavigationArrow(fragment);
+        }
+    }
+
+    private void showToolbarNavigationArrow(Fragment fragment){
+            if(fragment instanceof IToolBarFragment){
+                showToolbarNavigationArrow(((IToolBarFragment) fragment).shouldShowBackArrow());
+            }
+        }
+
+        private void showToolbarNavigationArrow(boolean shouldShowNavigation){
         getSupportActionBar().setDisplayHomeAsUpEnabled(shouldShowNavigation);
         getSupportActionBar().setDisplayShowHomeEnabled(shouldShowNavigation);
     }
@@ -69,62 +83,77 @@ public class MainActivity extends AppCompatActivity implements IApplicationNavig
     @Override
     public void navigateToRootCategory() {
         sessionStateAdapter.resetCategoryBrowsingStack();
-        String tag = sessionStateAdapter.getCategoryBrowsingStack().peek().name;
-        addFragment(new CategoriesFragment(), R.id.content, tag);
+        CategoriesFragment fragment = new CategoriesFragment();
+        fragment.setShowBackArrow(false);
+        fragment.setToolbarTitleForFragment(getResources().getString(R.string.app_name));
+        String tag =  buildFragmentTag(sessionStateAdapter.getCategoryBrowsingStack().peek(), CategoriesFragment.class);
+        addFragment(fragment, R.id.content, tag);
     }
 
     @Override
     public void navigateToSubCategory(final Category category) {
         // add new category to stack
         sessionStateAdapter.addCategoryToBrowsingStack(category);
-        String tag = category.name;
-        setTitle(tag);
-        showToolbarNavigationArrow(true);
-        addFragmentWithBackStack(new CategoriesFragment(), R.id.content, tag);
+        CategoriesFragment fragment = new CategoriesFragment();
+        fragment.setShowBackArrow(true);
+        fragment.setToolbarTitleForFragment(category.name);
+        String tag = buildFragmentTag(category, CategoriesFragment.class);
+        addFragmentWithBackStack(fragment, R.id.content, tag);
     }
 
     @Override
     public void navigateToCategoryListings(final Category category) {
+        sessionStateAdapter.setCategoryToSearch(category);
+        ListingsFragment fragment = new ListingsFragment();
+        fragment.setShowBackArrow(true);
+        fragment.setToolbarTitleForFragment(category.name);
+        String tag = buildFragmentTag(category, ListingsFragment.class);
+        addFragmentWithBackStack(fragment, R.id.content, tag);
+    }
 
-        tradeMeApiAdapter.getListingsForCategory(category.number);
-
-        // Make call to get listings
-        // if succesful, add to stack, change page
-        //        sessionStateAdapter.addCategoryToBrowsingStack(category);
-
-        // if fail, show an error message.
+    private String buildFragmentTag(Category category, Class fragmentClass){
+        return category.name + fragmentClass.getSimpleName();
     }
 
     @Override
     public void onBackPressed() {
+        // Get current fragment
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.content); //TODO: Fix for Tablet.
+        String tag = fragment.getTag();
+
         // Make sure that the browsing stack is popped when we go back.
         if (!sessionStateAdapter.getCategoryBrowsingStack().isEmpty()) {
-            // I'm assuming that the current category name will give me current fragment.
-            String tag = sessionStateAdapter.getCategoryBrowsingStack().peek().name;
-            Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
-            if (fragment instanceof CategoriesFragment) {
-                if (!tag.equals(sessionStateAdapter.getCategoryBrowsingStack().firstElement().name)) {
+
+            if(fragment instanceof CategoriesFragment){
+                if (!tag.equals(buildFragmentTag(sessionStateAdapter.getCategoryBrowsingStack().firstElement(), CategoriesFragment.class))) {
                     sessionStateAdapter.popCategoryFromBrowsingStack();
                 }
-                setTitleForCategoriesFragment((CategoriesFragment) fragment);
+                setTitleForFragment((IToolBarFragment)fragment);
+            }else if(fragment instanceof ListingsFragment){
+                sessionStateAdapter.clearCategoryToSearch();
             }
         }
 
-        super.onBackPressed();
-    }
+        super.onBackPressed(); //Fragment will get popped here.
 
-    private void setTitleForCategoriesFragment(CategoriesFragment fragment){
-        // Make sure the correct title is set when going back.  I don't want to do this inside the Fragments.
-        String title = sessionStateAdapter.getCategoryBrowsingStack().peek().name;
-        if (!title.equals(sessionStateAdapter.getCategoryBrowsingStack().firstElement().name)) {
-            setTitle(title);
-        } else {
-            showToolbarNavigationArrow(false);
-            setTitle(getResources().getString(R.string.app_name));
+        fragment = getSupportFragmentManager().findFragmentById(R.id.content); //TODO: Fix for Tablet.
+
+        if(fragment instanceof IToolBarFragment){
+            setTitleForFragment(((IToolBarFragment)fragment));
+            showToolbarNavigationArrow(fragment);
         }
     }
 
+    private void setTitleForFragment(IToolBarFragment fragment){
+        setTitle(fragment.getToolBarTitleForFragment());
+    }
+
     private void addFragment(Fragment fragment, int containerId, String tag) {
+        if(fragment instanceof IToolBarFragment){
+            setTitleForFragment((IToolBarFragment)fragment);
+            showToolbarNavigationArrow(fragment);
+        }
+
         if (findViewById(containerId) != null) {
             getSupportFragmentManager()
                     .beginTransaction()
@@ -135,9 +164,15 @@ public class MainActivity extends AppCompatActivity implements IApplicationNavig
 
     private void addFragmentWithBackStack(Fragment fragment, int containerId, String tag) {
         if (findViewById(containerId) != null) {
+
+            if(fragment instanceof IToolBarFragment){
+                setTitleForFragment((IToolBarFragment)fragment);
+                showToolbarNavigationArrow(fragment);
+            }
+
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(containerId, fragment, tag)
+                    .replace(containerId, fragment, tag)
                     .addToBackStack(tag)
                     .commit();
         }

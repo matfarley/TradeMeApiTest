@@ -1,13 +1,15 @@
 package com.matthewfarley.trademeapitest.GlobalState;
 
 import com.matthewfarley.trademeapitest.Service.Models.Category;
+import com.matthewfarley.trademeapitest.Service.Models.Listing;
 
 import org.jdeferred.Promise;
 
+import java.util.List;
 import java.util.Stack;
 
 /**
- * Created by matthewfarley on 25/10/16.
+ * Object used to wrap session state and manipulate any inbound and outbound data as needed.
  */
 public interface ISessionStateAdapter {
 
@@ -24,6 +26,10 @@ public interface ISessionStateAdapter {
     void addCategoryToBrowsingStack(Category category);
     void popCategoryFromBrowsingStack();
     Stack<Category> getCategoryBrowsingStack();
+
+    void setCategoryToSearch(Category categoryToSearch);
+    Category getCategoryToSearch();
+    void clearCategoryToSearch();
 
     interface IStateListener{
         void handleStateUpdate();

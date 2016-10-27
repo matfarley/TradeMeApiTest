@@ -17,4 +17,8 @@ public interface ISessionState {
     void popCategoryFromBrowsingStack();
     Stack<Category> getCategoryBrowsingStack();
 
+    void setCategoryToSearch(Category categoryToSearch);
+    Category getCategoryToSearch();
+    void clearCategoryToSearch();
+
 }

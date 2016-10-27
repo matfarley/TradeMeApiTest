@@ -4,6 +4,7 @@ import com.matthewfarley.trademeapitest.Service.Error.ApiError;
 import com.matthewfarley.trademeapitest.Service.ITradeMeApi;
 import com.matthewfarley.trademeapitest.Service.ITradeMeApiAdapter;
 import com.matthewfarley.trademeapitest.Service.Models.Category;
+import com.matthewfarley.trademeapitest.Service.Models.Listing;
 
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
@@ -18,7 +19,7 @@ import java.util.Stack;
 import javax.inject.Inject;
 
 /**
- * Created by matthewfarley on 25/10/16.
+ * Object used to wrap session state and manipulate any inbound and outbound data as needed.
  */
 
 public class SessionStateAdapterImpl implements ISessionStateAdapter {
@@ -94,6 +95,21 @@ public class SessionStateAdapterImpl implements ISessionStateAdapter {
     @Override
     public Stack<Category> getCategoryBrowsingStack() {
         return sessionState.getCategoryBrowsingStack();
+    }
+
+    @Override
+    public void setCategoryToSearch(Category categoryToSearch) {
+        sessionState.setCategoryToSearch(categoryToSearch);
+    }
+
+    @Override
+    public Category getCategoryToSearch() {
+        return sessionState.getCategoryToSearch();
+    }
+
+    @Override
+    public void clearCategoryToSearch() {
+        sessionState.clearCategoryToSearch();
     }
 
     private void setRootCategory(Category rootCategory) {

@@ -42,8 +42,8 @@ public class CategoriesFragment extends BaseListFragment<CategoriesRecyclerViewA
 
     @Override
     protected CategoriesRecyclerViewAdapter getAdapter() {
-        if(adapter == null){
-            adapter = new CategoriesRecyclerViewAdapter(this);
+        if (adapter == null) {
+            adapter = new CategoriesRecyclerViewAdapter(this, getContext());
         }
         return adapter;
     }
@@ -52,14 +52,13 @@ public class CategoriesFragment extends BaseListFragment<CategoriesRecyclerViewA
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        if(sessionStateAdapter.getCategoryBrowsingStack().isEmpty() ||
-                sessionStateAdapter.getCategoryBrowsingStack().peek().subcategories.isEmpty()){
+        if (sessionStateAdapter.getCategoryBrowsingStack().isEmpty() ||
+                sessionStateAdapter.getCategoryBrowsingStack().peek().subcategories.isEmpty()) {
             showError(true);
             return;
         }
         showError(false);
-        getAdapter()
-                .setCategoryList(sessionStateAdapter.getCategoryBrowsingStack().peek().subcategories);
+        getAdapter().setCategoryList(sessionStateAdapter.getCategoryBrowsingStack().peek().subcategories);
     }
 
     @Override
@@ -74,38 +73,41 @@ public class CategoriesFragment extends BaseListFragment<CategoriesRecyclerViewA
         sessionStateAdapter.removeListener(this);
     }
 
-    /** IStateListener Implementation.*/
+    /**
+     * IStateListener Implementation.
+     */
     @Override
     public void handleStateUpdate() {
-        if(sessionStateAdapter.getCategoryBrowsingStack().isEmpty() ||
-                sessionStateAdapter.getCategoryBrowsingStack().peek().subcategories.isEmpty()){
+        if (sessionStateAdapter.getCategoryBrowsingStack().isEmpty() ||
+                sessionStateAdapter.getCategoryBrowsingStack().peek().subcategories.isEmpty()) {
             showError(true);
             return;
         }
 
         showError(false);
-        getAdapter()
-                .setCategoryList(sessionStateAdapter.getCategoryBrowsingStack().peek().subcategories);
+        getAdapter().setCategoryList(sessionStateAdapter.getCategoryBrowsingStack().peek().subcategories);
     }
 
-    /** ICategorySelectionHandler implementation.*/
+    /**
+     * ICategorySelectionHandler implementation.
+     */
     @Override
     public void viewSubCategories(Category category) {
-        if (category.subcategories == null || category.subcategories.isEmpty()){
+        if (category.subcategories == null || category.subcategories.isEmpty()) {
             //TODO show error.
             return;
         }
         // launch listing list screen
-        if(getActivity() instanceof IApplicationNavigation){
-            ((IApplicationNavigation)getActivity()).navigateToSubCategory(category);
+        if (getActivity() instanceof IApplicationNavigation) {
+            ((IApplicationNavigation) getActivity()).navigateToSubCategory(category);
         }
     }
 
     @Override
     public void viewListingsForCategory(Category category) {
         // launch listing list screen
-        if(getActivity() instanceof IApplicationNavigation){
-            ((IApplicationNavigation)getActivity()).navigateToCategoryListings(category);
+        if (getActivity() instanceof IApplicationNavigation) {
+            ((IApplicationNavigation) getActivity()).navigateToCategoryListings(category);
         }
     }
 }

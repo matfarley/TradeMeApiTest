@@ -12,6 +12,7 @@ import java.util.Stack;
 public class SessionStateImpl implements ISessionState {
     private Category rootCategory;
     private Stack<Category> categoryBrowsingStack;
+    private Category categoryToSearch;
 
     public SessionStateImpl() {
     }
@@ -55,5 +56,20 @@ public class SessionStateImpl implements ISessionState {
     @Override
     public Stack<Category> getCategoryBrowsingStack() {
         return categoryBrowsingStack;
+    }
+
+    @Override
+    public void setCategoryToSearch(Category categoryToSearch) {
+        this.categoryToSearch = categoryToSearch;
+    }
+
+    @Override
+    public Category getCategoryToSearch() {
+        return categoryToSearch;
+    }
+
+    @Override
+    public void clearCategoryToSearch() {
+        categoryToSearch = null;
     }
 }

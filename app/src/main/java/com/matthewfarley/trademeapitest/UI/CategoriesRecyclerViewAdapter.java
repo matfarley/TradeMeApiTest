@@ -1,16 +1,19 @@
 package com.matthewfarley.trademeapitest.UI;
 
+import android.content.Context;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.matthewfarley.trademeapitest.R;
 import com.matthewfarley.trademeapitest.Service.Models.Category;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,10 +23,13 @@ import java.util.List;
 public class CategoriesRecyclerViewAdapter extends RecyclerView.Adapter<CategoriesRecyclerViewAdapter.CategoryViewHolder> {
 
     private ICategorySelectionHandler categorySelectionHandler;
-    private List<Category> categoryList;
+    private Context context;
+    private List<Category> categoryList = new ArrayList<>();
 
-    public CategoriesRecyclerViewAdapter(ICategorySelectionHandler categorySelectionHandler) {
+    public CategoriesRecyclerViewAdapter(ICategorySelectionHandler categorySelectionHandler,
+                                         Context context) {
         this.categorySelectionHandler = categorySelectionHandler;
+        this.context = context;
     }
 
     public void setCategoryList(List<Category> categoryList) {
@@ -71,13 +77,13 @@ public class CategoriesRecyclerViewAdapter extends RecyclerView.Adapter<Categori
 
         TextView titleTextView;
         LinearLayout viewListingsButton;
-        AppCompatImageView imageView;
+        ImageView imageView;
 
         public CategoryViewHolder(View itemView) {
             super(itemView);
             titleTextView = (TextView)itemView.findViewById(R.id.categories_title);
             viewListingsButton = (LinearLayout)itemView.findViewById(R.id.categories_view_listings_button);
-            imageView = (AppCompatImageView)itemView.findViewById(R.id.categories_right_arrow);
+            imageView = (ImageView)itemView.findViewById(R.id.categories_right_arrow);
         }
     }
 

@@ -60,7 +60,7 @@ public class TradeMeApiAdapterImpl implements ITradeMeApiAdapter {
                     @Override
                     public void onDone(List<Listing> result) {
                         if (result == null || result.isEmpty()) {
-                            deferred.reject("Null Category Root");
+                            deferred.reject("Empty Result List");
                         } else {
                             deferred.resolve(result);
                         }
