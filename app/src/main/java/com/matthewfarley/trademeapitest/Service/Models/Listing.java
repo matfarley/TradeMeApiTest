@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 /**
- * Created by matthewfarley on 26/10/16.
+ * Domain model for the listing info retrieved by search.
  */
 
 public class Listing implements Serializable {

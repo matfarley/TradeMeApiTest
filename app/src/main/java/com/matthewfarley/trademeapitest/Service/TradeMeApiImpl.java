@@ -1,9 +1,11 @@
 package com.matthewfarley.trademeapitest.Service;
 
 import com.matthewfarley.trademeapitest.Service.Endpoints.ICategoriesEndpointService;
+import com.matthewfarley.trademeapitest.Service.Endpoints.IListingEndPointService;
 import com.matthewfarley.trademeapitest.Service.Endpoints.ISearchEndpointService;
 import com.matthewfarley.trademeapitest.Service.Error.ApiError;
 import com.matthewfarley.trademeapitest.Service.Models.Category;
+import com.matthewfarley.trademeapitest.Service.Models.ListedItemDetail;
 import com.matthewfarley.trademeapitest.Service.Models.Listing;
 import com.matthewfarley.trademeapitest.Service.Models.SearchResults;
 import com.matthewfarley.trademeapitest.Util.IPromiseManager;
@@ -135,6 +137,47 @@ public class TradeMeApiImpl implements ITradeMeApi {
         ISearchEndpointService searchEndpointService = createEndpointService(ISearchEndpointService.class);
         Call<SearchResults> call = searchEndpointService.getSearchResultsForCategory(authorisationText,
                 categoryNumber, MAX_SEARCH_RESULTS);
+        call.enqueue(callback);
+
+        promiseManager.addPromise(promiseKey, deferred.promise());
+        return deferred.promise();
+    }
+
+    @Override
+    public Promise<ListedItemDetail, ApiError, String> getListedItem(String listingId) {
+        final Deferred<ListedItemDetail, ApiError, String> deferred = new DeferredObject();
+
+        String promiseKey = "getListedItem" + listingId;
+        if(promiseManager.getPromise(promiseKey) != null){
+            return promiseManager.getPromise(promiseKey);
+        }
+
+        Callback<ListedItemDetail> callback = new Callback<ListedItemDetail>() {
+            @Override
+            public void onResponse(Call<ListedItemDetail> call, Response<ListedItemDetail> response) {
+                if(response.isSuccessful()){
+                    deferred.resolve(response.body());
+                }else{
+                    ApiError apiError = parseError(response);
+                    deferred.reject(apiError);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ListedItemDetail> call, Throwable t) {
+                ApiError apiError = new ApiError(call.request().url().toString(), t.getMessage());
+                deferred.reject(apiError);
+            }
+        };
+
+        java.util.Calendar cal = Calendar.getInstance();
+        cal.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String timeStamp = Long.valueOf(cal.getTimeInMillis()).toString();
+        String authorisationText = getAuthorisationHeaderText(API_CONSUMER_KEY, API_CONSUMER_SECRET, timeStamp);
+
+        IListingEndPointService listingEndPointService = createEndpointService(IListingEndPointService.class);
+        Call<ListedItemDetail> call = listingEndPointService.getListedItem(authorisationText,
+                listingId);
         call.enqueue(callback);
 
         promiseManager.addPromise(promiseKey, deferred.promise());

@@ -3,6 +3,7 @@ package com.matthewfarley.trademeapitest.Service;
 import com.google.common.base.Strings;
 import com.matthewfarley.trademeapitest.Service.Error.ApiError;
 import com.matthewfarley.trademeapitest.Service.Models.Category;
+import com.matthewfarley.trademeapitest.Service.Models.ListedItemDetail;
 import com.matthewfarley.trademeapitest.Service.Models.Listing;
 
 import org.jdeferred.Deferred;
@@ -74,6 +75,28 @@ public class TradeMeApiAdapterImpl implements ITradeMeApiAdapter {
 
         return deferred.promise();
     }
+
+    @Override
+    public Promise<ListedItemDetail, String, String> getListedItem(String listingId) {
+        final Deferred<ListedItemDetail, String, String> deferred = new DeferredObject<>();
+        tradeMeApi.getListedItem(listingId)
+                .done(new DoneCallback<ListedItemDetail>() {
+                    @Override
+                    public void onDone(ListedItemDetail result) {
+                        if (result == null) {
+                            deferred.reject("Null Listing");
+                        } else {
+                            deferred.resolve(result);
+                        }
+                    }
+                }).fail(new FailCallback<ApiError>() {
+            @Override
+            public void onFail(ApiError error) {
+                deferred.reject(getErrorMessage(error));
+            }
+        });
+
+        return deferred.promise();    }
 
     private String getErrorMessage(ApiError apiError) {
         if (apiError == null || Strings.isNullOrEmpty(apiError.errorDescription)) {
