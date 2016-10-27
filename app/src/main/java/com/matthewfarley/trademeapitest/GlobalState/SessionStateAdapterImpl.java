@@ -100,6 +100,7 @@ public class SessionStateAdapterImpl implements ISessionStateAdapter {
     @Override
     public void setCategoryToSearch(Category categoryToSearch) {
         sessionState.setCategoryToSearch(categoryToSearch);
+        notifyListeners();
     }
 
     @Override

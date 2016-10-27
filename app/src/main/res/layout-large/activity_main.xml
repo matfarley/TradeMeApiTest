@@ -13,9 +13,17 @@
         android:elevation="4dp"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
-
-    <FrameLayout
-        android:id="@+id/content"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+        <FrameLayout
+            android:id="@+id/content"
+            android:layout_width="@dimen/content_width"
+            android:layout_height="match_parent" />
+        <FrameLayout
+            android:id="@+id/content_pane_2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
 </LinearLayout>

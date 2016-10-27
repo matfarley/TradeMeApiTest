@@ -46,6 +46,11 @@ public class MainActivity extends AppCompatActivity implements IApplicationNavig
                     @Override
                     public void onDone(Category result) {
                         navigateToRootCategory();
+
+                        // Check for Tablet Layout
+                        if (findViewById(R.id.content_pane_2) != null) {
+                            navigateToCategoryListings(result, R.id.content_pane_2, false);
+                        }
                     }
                 }).fail(new FailCallback<String>() {
             @Override
@@ -99,16 +104,37 @@ public class MainActivity extends AppCompatActivity implements IApplicationNavig
         fragment.setToolbarTitleForFragment(category.name);
         String tag = buildFragmentTag(category, CategoriesFragment.class);
         addFragmentWithBackStack(fragment, R.id.content, tag);
+
+        // Check for Tablet Layout
+        if (findViewById(R.id.content_pane_2) != null) {
+            sessionStateAdapter.setCategoryToSearch(category);
+        }
     }
 
     @Override
     public void navigateToCategoryListings(final Category category) {
+        // Check for Tablet Layout.  If null, do phone behavior
+        if (findViewById(R.id.content_pane_2) == null) {
+            navigateToCategoryListings(category, R.id.content, true);
+            return;
+        }
+
+        // If the fragment is there, just change the category
+        if(getSupportFragmentManager().findFragmentById(R.id.content_pane_2) != null){
+            sessionStateAdapter.setCategoryToSearch(category);
+            return;
+        }
+
+        navigateToCategoryListings(category, R.id.content_pane_2, false);
+    }
+
+    public void navigateToCategoryListings(final Category category, int containerId, boolean showBackArrow) {
         sessionStateAdapter.setCategoryToSearch(category);
         ListingsFragment fragment = new ListingsFragment();
-        fragment.setShowBackArrow(true);
+        fragment.setShowBackArrow(showBackArrow);
         fragment.setToolbarTitleForFragment(category.name);
         String tag = buildFragmentTag(category, ListingsFragment.class);
-        addFragmentWithBackStack(fragment, R.id.content, tag);
+        addFragmentWithBackStack(fragment, containerId, tag);
     }
 
     private String buildFragmentTag(Category category, Class fragmentClass){
@@ -127,16 +153,15 @@ public class MainActivity extends AppCompatActivity implements IApplicationNavig
             if(fragment instanceof CategoriesFragment){
                 if (!tag.equals(buildFragmentTag(sessionStateAdapter.getCategoryBrowsingStack().firstElement(), CategoriesFragment.class))) {
                     sessionStateAdapter.popCategoryFromBrowsingStack();
+                    sessionStateAdapter.setCategoryToSearch(sessionStateAdapter.getCategoryBrowsingStack().peek());
                 }
                 setTitleForFragment((IToolBarFragment)fragment);
-            }else if(fragment instanceof ListingsFragment){
-                sessionStateAdapter.clearCategoryToSearch();
             }
         }
 
         super.onBackPressed(); //Fragment will get popped here.
 
-        fragment = getSupportFragmentManager().findFragmentById(R.id.content); //TODO: Fix for Tablet.
+        fragment = getSupportFragmentManager().findFragmentById(R.id.content);
 
         if(fragment instanceof IToolBarFragment){
             setTitleForFragment(((IToolBarFragment)fragment));
@@ -174,6 +199,7 @@ public class MainActivity extends AppCompatActivity implements IApplicationNavig
                     .beginTransaction()
                     .replace(containerId, fragment, tag)
                     .addToBackStack(tag)
+                    .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
                     .commit();
         }
     }

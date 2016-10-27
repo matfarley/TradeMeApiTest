@@ -4,5 +4,6 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="default_padding">16dp</dimen>
     <dimen name="half_default_padding">8dp</dimen>
+    <dimen name="content_width">300dp</dimen>
     <dimen name="categories_row_height">100dp</dimen>
 </resources>

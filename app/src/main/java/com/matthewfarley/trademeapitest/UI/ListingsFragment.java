@@ -19,11 +19,13 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import static com.matthewfarley.trademeapitest.GlobalState.ISessionStateAdapter.*;
+
 /**
  * Created by matthewfarley on 27/10/16.
  */
 
-public class ListingsFragment extends BaseListFragment<ListingRecyclerViewAdapter> {
+public class ListingsFragment extends BaseListFragment<ListingRecyclerViewAdapter> implements IStateListener {
 
     @Inject
     ISessionStateAdapter sessionStateAdapter;
@@ -51,6 +53,10 @@ public class ListingsFragment extends BaseListFragment<ListingRecyclerViewAdapte
             return;
         }
 
+        fetchData();
+    }
+
+    private void fetchData(){
         tradeMeApiAdapter.getListingsForCategory(sessionStateAdapter.getCategoryToSearch().number)
                 .done(new DoneCallback<List<Listing>>() {
                     @Override
@@ -64,10 +70,10 @@ public class ListingsFragment extends BaseListFragment<ListingRecyclerViewAdapte
                         getAdapter().setListingList(result);
                     }
                 }).fail(new FailCallback<String>() {
-                    @Override
-                    public void onFail(String result) {
-                        showError(true);
-                    }
+            @Override
+            public void onFail(String result) {
+                showError(true);
+            }
         });
     }
 
@@ -77,5 +83,23 @@ public class ListingsFragment extends BaseListFragment<ListingRecyclerViewAdapte
             adapter = new ListingRecyclerViewAdapter(getContext());
         }
         return adapter;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        sessionStateAdapter.addListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        sessionStateAdapter.removeListener(this);
+    }
+
+    /** IStateListener implementation. */
+    @Override
+    public void handleStateUpdate() {
+        fetchData();
     }
 }

@@ -52,11 +52,16 @@ public class CategoriesFragment extends BaseListFragment<CategoriesRecyclerViewA
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+       fetchData();
+    }
+
+    private void fetchData(){
         if (sessionStateAdapter.getCategoryBrowsingStack().isEmpty() ||
                 sessionStateAdapter.getCategoryBrowsingStack().peek().subcategories.isEmpty()) {
             showError(true);
             return;
         }
+
         showError(false);
         getAdapter().setCategoryList(sessionStateAdapter.getCategoryBrowsingStack().peek().subcategories);
     }
@@ -78,14 +83,7 @@ public class CategoriesFragment extends BaseListFragment<CategoriesRecyclerViewA
      */
     @Override
     public void handleStateUpdate() {
-        if (sessionStateAdapter.getCategoryBrowsingStack().isEmpty() ||
-                sessionStateAdapter.getCategoryBrowsingStack().peek().subcategories.isEmpty()) {
-            showError(true);
-            return;
-        }
-
-        showError(false);
-        getAdapter().setCategoryList(sessionStateAdapter.getCategoryBrowsingStack().peek().subcategories);
+        fetchData();
     }
 
     /**
