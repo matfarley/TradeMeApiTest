@@ -1,5 +1,3 @@
-TradeMe Api Test.
-
 This Repo holds a test project that I build for TradeMe, showing them how I would use their api to perform some basic browsing and drilling down behaviour.
 
 The networking layer has been set up to make calls to get details for an individual listing, but these have not been wired up for views.
